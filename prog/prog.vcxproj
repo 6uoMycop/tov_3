@@ -106,7 +106,7 @@
     </Link>
     <PreBuildEvent>
       <Command>echo F|xcopy SourceProg.cpp tmp.cpp
-python obfuscator.py SourceProg.cpp 370</Command>
+python obfuscator.py SourceProg.cpp 237</Command>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>encrypter.exe $(TargetPath) 33FA0 34EDA

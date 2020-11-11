@@ -18,8 +18,8 @@ int main(int argc, char* argv[])
     unsigned char key = 0x00;
 
     srand(time(NULL));
-    // key = (unsigned char)(rand() % 0x100);
-    key = 0x5A; // TODO: random key
+    key = (unsigned char)(rand() % 0x100);
+    //key = 0x5A; // TODO: random key
 
     FILE* F = NULL;
     fopen_s(&F, argv[1], "r+b");

